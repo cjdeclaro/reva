@@ -10,9 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_30_055119) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_30_062322) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "nps_scores", force: :cascade do |t|
+    t.string "company_name"
+    t.date "date"
+    t.integer "promoters_count"
+    t.integer "passives_count"
+    t.integer "detractors_count"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "reviews", force: :cascade do |t|
     t.string "company_name"
