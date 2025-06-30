@@ -1,45 +1,63 @@
-<div class="flex gap-4">
-  <%= render partial: "filters" %>
+<div class="container mx-auto px-4 py-4">
+  <!-- Filters Section -->
+  <div class="mb-6">
+    <%= render partial: "filters" %>
+  </div>
 
-  <div class="w-3/4">
+  <!-- Reviews Table Section -->
+  <div class="bg-white rounded-xl shadow p-6 mb-6">
     <turbo-frame id="reviews">
-      <table class="table-auto w-full text-sm border">
-        <thead>
-          <tr>
-            <th>Company</th>
-            <th>Channel</th>
-            <th>Rating</th>
-            <th>Date</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @reviews.each do |review| %>
-          <tr class="border-t">
-            <td><%= review.company_name %></td>
-            <td><%= review.channel %></td>
-            <td><%= "★" * review.rating %></td>
-            <td><%= review.review_date.strftime("%b %-d, %Y") %></td>
-            <td><%= truncate(review.description, length: 80) %></td>
-          </tr>
-          <% end %>
-        </tbody>
-      </table>
-      <%= pagy_nav(@pagy).html_safe %>
+      <h2 class="text-xl font-semibold mb-4 text-gray-700">Guest Reviews</h2>
+
+      <!-- Pagination Top -->
+      <div class="mb-4">
+        <%= pagy_nav(@pagy).html_safe %>
+      </div>
+
+      <!-- Reviews Table -->
+      <div class="overflow-x-auto">
+        <table class="min-w-full table-auto border border-gray-200 rounded-lg text-sm text-left text-gray-700">
+          <thead class="bg-gray-100 text-xs uppercase text-gray-500">
+            <tr>
+              <th class="px-4 py-2">Company</th>
+              <th class="px-4 py-2">Channel</th>
+              <th class="px-4 py-2">Rating</th>
+              <th class="px-4 py-2">Date</th>
+              <th class="px-4 py-2">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @reviews.each do |review| %>
+            <tr class="border-t hover:bg-gray-50">
+              <td class="px-4 py-2"><%= review.company_name %></td>
+              <td class="px-4 py-2"><%= review.channel %></td>
+              <td class="px-4 py-2 text-yellow-500"><%= "★" * review.rating %></td>
+              <td class="px-4 py-2"><%= review.review_date.strftime("%b %-d, %Y") %></td>
+              <td class="px-4 py-2 text-gray-600"><%= truncate(review.description.html_safe, length: 80) %></td>
+            </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Bottom -->
+      <div class="mt-4">
+        <%= pagy_nav(@pagy).html_safe %>
+      </div>
     </turbo-frame>
   </div>
-</div>
 
-<div>
-  <% nps_data = NpsScore.all.group_by(&:company_name).transform_values do |scores|
-  {
-    promoters: scores.sum(&:promoters_count),
-    passives: scores.sum(&:passives_count),
-    detractors: scores.sum(&:detractors_count)
-  }
-end %>
-
-  <div class="my-8">
-    <canvas data-controller="nps-chart" data-nps-chart-data-value='<%= raw nps_data.to_json %>' width="400" height="200"></canvas>
+  <!-- NPS Chart Section -->
+  <div class="bg-white rounded-xl shadow p-6">
+    <h2 class="text-xl font-semibold mb-4 text-gray-700">Net Promoter Score Overview</h2>
+    <% nps_data = NpsScore.all.group_by(&:company_name).transform_values do |scores|
+      {
+        promoters: scores.sum(&:promoters_count),
+        passives: scores.sum(&:passives_count),
+        detractors: scores.sum(&:detractors_count)
+      }
+    end %>
+    <canvas data-controller="nps-chart" data-nps-chart-data-value='<%= raw nps_data.to_json %>' width="600" height="300" class="mx-auto">
+    </canvas>
   </div>
 </div>
