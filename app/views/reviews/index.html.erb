@@ -1,31 +1,36 @@
-<div class="flex">
-  <%= render "filters" %>
-  <turbo-frame id="reviews">
-    <table class="w-full text-sm">
-      <thead>
-        <tr>
-          <th>Company</th>
-          <th>Channel</th>
-          <th>Rating</th>
-          <th>Date</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @reviews.each do |review| %>
-        <tr>
-          <td><%= review.company_name %></td>
-          <td><%= review.channel %></td>
-          <td><%= "★" * review.rating %></td>
-          <td><%= review.review_date %></td>
-          <td><%= truncate(review.description, length: 80) %></td>
-        </tr>
-        <% end %>
-      </tbody>
-    </table>
-    <%= pagy_nav(@pagy).html_safe %>
-  </turbo-frame>
+<div class="flex gap-4">
+  <%= render partial: "filters" %>
 
+  <div class="w-3/4">
+    <turbo-frame id="reviews">
+      <table class="table-auto w-full text-sm border">
+        <thead>
+          <tr>
+            <th>Company</th>
+            <th>Channel</th>
+            <th>Rating</th>
+            <th>Date</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @reviews.each do |review| %>
+          <tr class="border-t">
+            <td><%= review.company_name %></td>
+            <td><%= review.channel %></td>
+            <td><%= "★" * review.rating %></td>
+            <td><%= review.review_date.strftime("%b %-d, %Y") %></td>
+            <td><%= truncate(review.description, length: 80) %></td>
+          </tr>
+          <% end %>
+        </tbody>
+      </table>
+      <%= pagy_nav(@pagy).html_safe %>
+    </turbo-frame>
+  </div>
+</div>
+
+<div>
   <% nps_data = NpsScore.all.group_by(&:company_name).transform_values do |scores|
   {
     promoters: scores.sum(&:promoters_count),

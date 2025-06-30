@@ -1,2 +1,38 @@
-<%= form_with url: reviews_path, method: :get, data: { controller: "filter", filter_target: "form" }, class: "w-1/4" do |f| %>
+<!-- Filter panel -->
+<%= form_with url: reviews_path, method: :get, data: { controller: "filter", filter_target: "form" }, class: "space-y-4 p-4 border-r w-1/4" do |f| %>
+
+<div>
+  <label>Rating</label><br>
+  <% @ratings.each do |rating| %>
+  <%= check_box_tag "ratings[]", rating, params[:ratings]&.include?(rating.to_s), onchange: "this.form.requestSubmit()" %>
+  <%= "#{rating}★" %><br>
+  <% end %>
+</div>
+
+<div>
+  <label>Channel</label><br>
+  <% @channels.each do |channel| %>
+  <%= check_box_tag "channels[]", channel, params[:channels]&.include?(channel), onchange: "this.form.requestSubmit()" %>
+  <%= channel %><br>
+  <% end %>
+</div>
+
+<div>
+  <label>Company</label><br>
+  <%= select_tag :company, options_for_select(@companies, params[:company]), prompt: "Select company", onchange: "this.form.requestSubmit()" %>
+</div>
+
+<div>
+  <label>Date range</label><br>
+  From: <%= date_field_tag :from, params[:from], onchange: "this.form.requestSubmit()" %><br>
+  To: <%= date_field_tag :to, params[:to], onchange: "this.form.requestSubmit()" %>
+</div>
+
+<div>
+  <label>Search in description</label><br>
+  <%= text_field_tag :q, params[:q], placeholder: "Search...", class: "w-full", onkeydown: "if(event.key === 'Enter') this.form.requestSubmit()" %>
+</div>
+
+<%= submit_tag "Apply Filters", class: "hidden" %>
+
 <% end %>
