@@ -25,4 +25,16 @@
     </table>
     <%= pagy_nav(@pagy).html_safe %>
   </turbo-frame>
+
+  <% nps_data = NpsScore.all.group_by(&:company_name).transform_values do |scores|
+  {
+    promoters: scores.sum(&:promoters_count),
+    passives: scores.sum(&:passives_count),
+    detractors: scores.sum(&:detractors_count)
+  }
+end %>
+
+  <div class="my-8">
+    <canvas data-controller="nps-chart" data-nps-chart-data-value='<%= raw nps_data.to_json %>' width="400" height="200"></canvas>
+  </div>
 </div>
