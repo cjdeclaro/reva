@@ -1,4 +1,4 @@
-<%= form_with url: reviews_path, method: :get, data: { controller: "filter", filter_target: "form" }, class: "bg-white p-6 rounded-lg shadow border border-gray-200" do |f| %>
+<%= form_with url: reviews_path, method: :get, data: { turbo_frame: "reviews", controller: "filter", filter_target: "form" }, class: "bg-white p-6 rounded-lg shadow border border-gray-200" do |f| %>
 <h2 class="text-xl font-semibold mb-4 text-gray-700">Filter Table</h2>
 <div class="flex flex-wrap items-center gap-6">
   <!-- Ratings -->

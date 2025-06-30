@@ -15,5 +15,20 @@ class ReviewsController < ApplicationController
     reviews = reviews.where("description ILIKE ?", "%#{params[:q]}%") if params[:q].present?
 
     @pagy, @reviews = pagy(reviews.order(review_date: :desc))
+
+    # Get average ratings per day from last 30 review dates
+    subquery_dates = reviews
+      .select(:review_date)
+      .distinct
+      .order(review_date: :desc)
+      .limit(30)
+
+    @chart_data = reviews
+      .where(review_date: subquery_dates)
+      .group(:review_date)
+      .order(review_date: :asc)
+      .pluck(:review_date, Arel.sql("ROUND(AVG(rating)::numeric, 2)"))
+      .to_h
+      .transform_keys { |date| date.strftime("%b %-d") }
   end
 end

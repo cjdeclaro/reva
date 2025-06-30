@@ -4,9 +4,10 @@
     <%= render partial: "filters" %>
   </div>
 
-  <!-- Reviews Table Section -->
-  <div class="bg-white rounded-xl shadow p-6 mb-6">
-    <turbo-frame id="reviews">
+  <turbo-frame id="reviews">
+    <!-- Reviews Table Section -->
+    <div class="bg-white rounded-xl shadow p-6 mb-6">
+
       <h2 class="text-xl font-semibold mb-4 text-gray-700">Guest Reviews</h2>
 
       <!-- Pagination Top -->
@@ -46,7 +47,80 @@
       <div class="mt-4">
         <%= pagy_nav(@pagy).html_safe %>
       </div>
-    </turbo-frame>
-  </div>
+    </div>
 
+    <!-- Line Chart Section -->
+    <div class="bg-white rounded-xl shadow p-6">
+      <h2 class="text-xl font-semibold mb-4 text-gray-700">Average Ratings of the filtered data for the last 30 records</h2>
+      <canvas id="reviewsChart" style="width:100%, height:200px" data-labels="<%= @chart_data.keys.to_json %>" data-values="<%= @chart_data.values.to_json %>">
+      </canvas>
+    </div>
+  </turbo-frame>
+
+  <!-- Chart.js Script -->
+  <script>
+    function renderReviewChart() {
+      const canvas = document.getElementById("reviewsChart");
+      if (!canvas) return;
+
+      const labels = JSON.parse(canvas.dataset.labels || "[]");
+      const values = JSON.parse(canvas.dataset.values || "[]");
+
+      requestAnimationFrame(() => {
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+
+        if (window.reviewsChartInstance) {
+          window.reviewsChartInstance.destroy();
+        }
+
+        window.reviewsChartInstance = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: labels,
+            datasets: [{
+              label: "Average Rating",
+              data: values,
+              borderColor: "rgba(234, 179, 8, 1)",
+              backgroundColor: "rgba(234, 179, 8, 0.2)",
+              fill: true,
+              tension: 0.3,
+              pointRadius: 4
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                min: 1,
+                max: 5,
+                ticks: {
+                  stepSize: 1
+                }
+              }
+            },
+            plugins: {
+              legend: {
+                display: false
+              }
+            }
+          }
+        });
+      });
+    }
+
+    // Run on initial load and on Turbo frame updates
+    document.addEventListener("DOMContentLoaded", renderReviewChart);
+    document.addEventListener("turbo:frame-load", renderReviewChart);
+
+    document.addEventListener("turbo:submit-end", function(event) {
+      if (!event.detail.success) return;
+
+      const form = event.target;
+      const params = new URLSearchParams(new FormData(form)).toString();
+      const newUrl = `${window.location.pathname}?${params}`;
+
+      history.replaceState({}, "", newUrl);
+    });
+  </script>
 </div>
